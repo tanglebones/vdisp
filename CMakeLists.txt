@@ -7,7 +7,9 @@ add_executable(vdisp main.c
         vdisp_oop.h
         vdisp_oop.c
         vdisp_trait.c
-        vdisp_trait.h)
+        vdisp_trait.h
+        ptime.c
+        ptime.h)
 
 # Configure aggressive optimizations for Release builds
 # Do not force the build type here; CLion profiles control it. We just define flags when Release is chosen.

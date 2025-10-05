@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ptime.h"
 #include "vdisp_oop.h"
 #include "vdisp_trait.h"
 
@@ -31,8 +32,7 @@ void vtr_two(void) {
   printf("%lf %lf\n", vtr_point_object_callvirt_get_x(pc), vtr_point_object_callvirt_get_y(pc));
 }
 
-void vtr_arr(void) {
-  int num_of_elements = 1024;
+void vtr_arr(size_t num_of_elements) {
   vtr_object_pointer *ps = calloc(num_of_elements, sizeof(vtr_object_pointer));
   vtr_point *p = calloc(num_of_elements, sizeof(vtr_point));
   for (int i = 0; i < num_of_elements; i++) {
@@ -72,8 +72,7 @@ void voo_two(void) {
   printf("%lf %lf\n", voo_point_callvirt_get_x(&c), voo_point_callvirt_get_y(&c));
 }
 
-void voo_arr(void) {
-  int num_of_elements = 1024;
+void voo_arr(size_t num_of_elements) {
   voo_point *p = calloc(num_of_elements, sizeof(voo_point));
   for (int i = 0; i < num_of_elements; i++) {
     voo_point_new(&p[i], i, i + num_of_elements);
@@ -85,18 +84,93 @@ void voo_arr(void) {
   free(p);
 }
 
-int main(int argc, char **argv) {
-  if (argc > 1) {
-    printf("Trait\n");
-    vtr();
-    vtr_two();
-    vtr_arr();
-  } else {
-    printf("\nObject\n");
-    voo();
-    voo_two();
-    voo_arr();
+static int compare_double(const void *a, const void *b) {
+  double diff = (*(const double *) a - *(const double *) b);
+  return (diff > 0) - (diff < 0);
+}
+
+static const size_t counts[] = {
+  1024 * 8,
+  1024 * 16,
+  1024 * 24,
+  1024 * 32,
+  1024 * 40,
+  1024 * 48,
+  1024 * 64,
+  1024 * 72,
+  1024 * 80,
+  1024 * 88,
+  1024 * 96,
+  1024 * 104,
+  1024 * 112,
+  1024 * 120,
+  1024 * 128,
+  1024 * 136,
+  1024 * 144,
+  1024 * 152,
+  1024 * 160,
+  1024 * 168,
+  1024 * 176,
+  1024 * 184,
+  1024 * 192,
+  1024 * 200,
+  1024 * 208,
+  1024 * 216,
+  1024 * 224,
+  1024 * 232,
+  1024 * 240,
+  1024 * 248,
+  1024 * 256
+};
+// static const size_t counts[] = {
+//   1024 * 8, 1024 * 16, 1024 * 32, 1024 * 64, 1024 * 128, 1024 * 256, 1024 * 512, 1024 * 1024, 1024 * 1024 * 2,
+//   1024 * 1024 * 4, 1024 * 1024 * 8
+// };
+
+void bench(char const *n, void f(size_t)) {
+  for (int i = 0; i < sizeof(counts) / sizeof(counts[0]); i++) {
+    const size_t count = counts[i];
+    double r[] = {
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0
+    };
+    size_t rlen = sizeof(r) / sizeof(r[0]);
+    for (size_t j = 0; j < rlen; j++) {
+      const ptime_point start = ptime_now();
+      f(count);
+      const ptime_point end = ptime_now();
+      r[j] = (double) ptime_ns_between(start, end);
+      // printf("%s %zu %zu: %0.0lf\n", n, j, count, r[j]);
+    }
+    qsort(r, rlen, sizeof(double), compare_double);
+
+    printf("%s,%zu,%0.0lf,%0.0lf,%0.0lf\n", n, count, r[1], r[rlen / 2], r[rlen - 2]);
   }
+  fflush(stdout);
+}
+
+int main() {
+  printf("Trait\n");
+  vtr();
+  vtr_two();
+  vtr_arr(1024);
+
+  printf("\nObject\n");
+  voo();
+  voo_two();
+  voo_arr(1024);
+  printf("\n");
+
+  bench("voo", voo_arr);
+  bench("vtr", vtr_arr);
+
   fflush(stdout);
   return 0;
 }
