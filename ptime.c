@@ -3,6 +3,8 @@
 #if defined(__APPLE__)
 #include <mach/mach_time.h>
 #include <pthread.h>
+#elif defined(_WIN32)
+#include <windows.h>
 #else
 #include <time.h>
 #endif
@@ -57,7 +59,48 @@ double ptime_s_between(ptime_point start, ptime_point end) {
     return (double)ptime_ns_between(start, end) / 1e9;
 }
 
-#else // non-Apple simple fallback using clock_gettime if available
+#elif defined(_WIN32)
+
+// Windows high-performance timer using QueryPerformanceCounter
+static INIT_ONCE g_ptime_once = INIT_ONCE_STATIC_INIT;
+static LARGE_INTEGER g_qpc_freq = {0};
+static double g_ns_per_tick = 0.0; // nanoseconds per performance counter tick
+
+static BOOL CALLBACK ptime_init_once_body(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *Context) {
+    (void)InitOnce; (void)Parameter; (void)Context;
+    if (!QueryPerformanceFrequency(&g_qpc_freq) || g_qpc_freq.QuadPart <= 0) {
+        // Extremely unlikely; fall back to 1 to avoid division by zero
+        g_qpc_freq.QuadPart = 1;
+    }
+    g_ns_per_tick = 1e9 / (double)g_qpc_freq.QuadPart;
+    return TRUE;
+}
+
+void ptime_init(void) {
+    InitOnceExecuteOnce(&g_ptime_once, ptime_init_once_body, NULL, NULL);
+}
+
+ptime_point ptime_now(void) {
+    ptime_init();
+    LARGE_INTEGER c;
+    QueryPerformanceCounter(&c);
+    ptime_point p; p.ticks = (uint64_t)c.QuadPart; return p;
+}
+
+uint64_t ptime_ns_between(ptime_point start, ptime_point end) {
+    uint64_t dt = end.ticks - start.ticks;
+    // Use long double to reduce precision loss and avoid overflow
+    long double v = (long double)dt * (long double)g_ns_per_tick;
+    if (v < 0) v = 0;
+    if (v > 1.84e19L) v = 1.84e19L; // clamp to ~UINT64_MAX
+    return (uint64_t)v;
+}
+
+double ptime_s_between(ptime_point start, ptime_point end) {
+    return (double)ptime_ns_between(start, end) / 1e9;
+}
+
+#else // non-Apple and non-Windows: use clock_gettime if available
 
 static void ptime_init_once_body(void) {}
 void ptime_init(void) { (void)ptime_init_once_body; }
