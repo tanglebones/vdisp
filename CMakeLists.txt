@@ -28,7 +28,9 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
 # Generates vdisp.disasm.txt in the configuration's build directory
 if (MSVC)
     set(_DISASM_CMD dumpbin)
-    set(_DISASM_ARGS /DISASM /OUT:"${CMAKE_CURRENT_BINARY_DIR}/vdisp.disasm.txt" "$<TARGET_FILE:vdisp>")
+    # Avoid quoting the /OUT: path because dumpbin delegates to link.exe, which treats embedded quotes literally.
+    # Paths here have no spaces in our profiles; if they ever do, consider a temporary directory or use redirection instead.
+    set(_DISASM_ARGS /DISASM /OUT:${CMAKE_CURRENT_BINARY_DIR}/vdisp.disasm.txt "$<TARGET_FILE:vdisp>")
 else()
     # Prefer llvm-objdump if available; otherwise fallback to objdump
     find_program(LLVM_OBJDUMP llvm-objdump)

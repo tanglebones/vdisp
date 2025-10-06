@@ -36,12 +36,10 @@ void vtr_circle_into_point_object_ptr(vtr_circle *circle, vtr_object_pointer *vp
   vpp->vtable = &vtl_impl_point_for_circle;
 }
 
-double vtr_point_object_callvirt_get_x(vtr_object_pointer vpp) {
-  vtr_point *self = vpp.data;
-  return vpp.vtable->get_x(self);
+double vtr_point_object_callvirt_get_x(const vtr_object_pointer *vpp) {
+  return vpp->vtable->get_x(vpp->data);
 }
 
-double vtr_point_object_callvirt_get_y(vtr_object_pointer vpp) {
-  vtr_point *self = vpp.data;
-  return vpp.vtable->get_y(self);
+double vtr_point_object_callvirt_get_y(const vtr_object_pointer *vpp) {
+  return vpp->vtable->get_y(vpp->data);
 }
