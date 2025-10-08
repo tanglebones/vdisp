@@ -19,8 +19,8 @@ typedef struct {
 } vtr_vtable_for_point;
 
 typedef struct {
-  void *data;
   vtr_vtable_for_point *vtable;
+  void *data;
 } vtr_object_pointer;
 
 void vtr_point_into_point_object_ptr(vtr_point *point, vtr_object_pointer *vpp);

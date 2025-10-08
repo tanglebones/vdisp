@@ -33,8 +33,11 @@ void vtr_two(void) {
 }
 
 typedef struct {
-  vtr_object_pointer *ps;
+  // allocated points (can be anywhere, stack or heap)
   vtr_point *p;
+  // array of dyn "fat" pointers to the trait and data pair
+  vtr_object_pointer *ps;
+  // number of elements in the array
   size_t num_of_elements;
 } vtr_arr_data;
 
@@ -90,8 +93,11 @@ void voo_two(void) {
 }
 
 typedef struct {
+  // heap allocations of the points
   voo_point *ps;
+  // array of pointers into the heap allocated points
   voo_point *p;
+  // number of points in the array.
   size_t num_of_elements;
 } voo_arr_data;
 
@@ -126,6 +132,9 @@ static int compare_double(const void *a, const void *b) {
 }
 
 static const size_t counts[] = {
+  1024 * 1,
+  1024 * 2,
+  1024 * 4,
   1024 * 8,
   1024 * 16,
   1024 * 24,
@@ -156,12 +165,13 @@ static const size_t counts[] = {
   1024 * 232,
   1024 * 240,
   1024 * 248,
-  1024 * 256
+  1024 * 256,
+  1024 * 512,
+  1024 * 1024,
+  1024 * 1024 * 2,
+  1024 * 1024 * 4,
+  1024 * 1024 * 8
 };
-// static const size_t counts[] = {
-//   1024 * 8, 1024 * 16, 1024 * 32, 1024 * 64, 1024 * 128, 1024 * 256, 1024 * 512, 1024 * 1024, 1024 * 1024 * 2,
-//   1024 * 1024 * 4, 1024 * 1024 * 8
-// };
 
 void bench(
   char const *n,
