@@ -114,8 +114,9 @@ void voo_arr(const voo_arr_data *data) {
   voo_point *p = data->p;
 
   for (int i = 0; i < num_of_elements; i++) {
-    trash = voo_point_callvirt_get_x(&p[i]);
-    trash = voo_point_callvirt_get_y(&p[i]);
+    voo_point *pp = &p[i];
+    trash = voo_point_callvirt_get_x(pp);
+    trash = voo_point_callvirt_get_y(pp);
   }
 }
 

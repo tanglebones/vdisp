@@ -46,13 +46,3 @@ void voo_circle_new(voo_circle *circle, double r, double x, double y) {
   circle->y = y;
   circle->rtti = &voo_circle_rtti;
 }
-
-double voo_point_callvirt_get_x(void *object) {
-  voo_point *self = object;
-  return self->rtti->vtable->get_x(self);
-}
-
-double voo_point_callvirt_get_y(void *object) {
-  voo_point *self = object;
-  return self->rtti->vtable->get_y(self);
-}
