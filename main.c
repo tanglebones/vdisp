@@ -39,9 +39,9 @@ typedef struct {
   vtr_object_pointer *ps;
   // number of elements in the array
   size_t num_of_elements;
-} vtr_arr_data;
+} vtr_arr_data_holder;
 
-void vtr_arr_setup(vtr_arr_data *data, const size_t num_of_elements) {
+void vtr_arr_setup(vtr_arr_data_holder *data, const size_t num_of_elements) {
   data->ps = calloc(num_of_elements, sizeof(vtr_object_pointer));
   data->p = calloc(num_of_elements, sizeof(vtr_point));
   data->num_of_elements = num_of_elements;
@@ -53,12 +53,12 @@ void vtr_arr_setup(vtr_arr_data *data, const size_t num_of_elements) {
   }
 }
 
-void vtr_arr_teardown(const vtr_arr_data *data) {
+void vtr_arr_teardown(const vtr_arr_data_holder *data) {
   free(data->ps);
   free(data->p);
 }
 
-void vtr_arr(const vtr_arr_data *data) {
+void vtr_arr(const vtr_arr_data_holder *data) {
   const size_t num_of_elements = data->num_of_elements;
   const vtr_object_pointer *ps = data->ps;
 
@@ -99,9 +99,9 @@ typedef struct {
   voo_point *p;
   // number of points in the array.
   size_t num_of_elements;
-} voo_arr_data;
+} voo_arr_data_holder;
 
-void voo_arr_setup(voo_arr_data *data, const size_t num_of_elements) {
+void voo_arr_setup(voo_arr_data_holder *data, const size_t num_of_elements) {
   data->ps = calloc(num_of_elements, sizeof(voo_point));
   data->p = calloc(num_of_elements, sizeof(voo_point));
   data->num_of_elements = num_of_elements;
@@ -110,12 +110,12 @@ void voo_arr_setup(voo_arr_data *data, const size_t num_of_elements) {
   }
 }
 
-void voo_arr_teardown(const voo_arr_data *data) {
+void voo_arr_teardown(const voo_arr_data_holder *data) {
   free(data->ps);
   free(data->p);
 }
 
-void voo_arr(const voo_arr_data *data) {
+void voo_arr(const voo_arr_data_holder *data) {
   const size_t num_of_elements = data->num_of_elements;
   const voo_point *p = data->p;
 
@@ -214,7 +214,7 @@ int main() {
   printf("Trait\n");
   vtr();
   vtr_two();
-  vtr_arr_data vtr_arr_data;
+  vtr_arr_data_holder vtr_arr_data;
   vtr_arr_setup(&vtr_arr_data, 1024);
   vtr_arr(&vtr_arr_data);
   vtr_arr_teardown(&vtr_arr_data);
@@ -222,15 +222,26 @@ int main() {
   printf("\nObject\n");
   voo();
   voo_two();
-  voo_arr_data voo_arr_data;
+  voo_arr_data_holder voo_arr_data;
   voo_arr_setup(&voo_arr_data, 1024);
   voo_arr(&voo_arr_data);
   voo_arr_teardown(&voo_arr_data);
 
   printf("\n");
 
-  bench("voo", &voo_arr_data, voo_arr_setup, voo_arr_teardown, voo_arr);
-  bench("vtr", &vtr_arr_data, vtr_arr_setup, vtr_arr_teardown, vtr_arr);
+
+  bench(
+    "voo",
+    &voo_arr_data,
+    (void(*)(void *, unsigned long)) voo_arr_setup,
+    (void(*)(const void *)) voo_arr_teardown,
+    (void(*)(const void *)) voo_arr);
+  bench(
+    "vtr",
+    &vtr_arr_data,
+    (void(*)(void *, unsigned long)) vtr_arr_setup,
+    (void(*)(const void *)) vtr_arr_teardown,
+    (void(*)(const void *)) vtr_arr);
 
   fflush(stdout);
   return 0;
