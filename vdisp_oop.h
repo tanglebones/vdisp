@@ -47,13 +47,13 @@ typedef struct {
 void voo_circle_new(voo_circle *circle, double r, double x, double y);
 
 inline double voo_point_callvirt_get_x(void *object) {
-  voo_point *self = object;
-  return self->rtti->vtable->get_x(self);
+  voo_point *this = object;
+  return this->rtti->vtable->get_x(this);
 }
 
 inline double voo_point_callvirt_get_y(void *object) {
-  voo_point *self = object;
-  return self->rtti->vtable->get_y(self);
+  voo_point *this = object;
+  return this->rtti->vtable->get_y(this);
 }
 
 #endif //VDISP_VDISP_OOP_H

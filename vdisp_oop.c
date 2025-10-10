@@ -1,16 +1,16 @@
 #include "vdisp_oop.h"
 
-double voo_impl_point_get_x_for_point(voo_point *self) {
-  return self->x;
+double voo_impl_point_get_x_for_point(voo_point *this) {
+  return this->x;
 }
 
-double voo_impl_point_get_y_for_point(voo_point *self) {
-  return self->y;
+double voo_impl_point_get_y_for_point(voo_point *this) {
+  return this->y;
 }
 
 static voo_vtable_for_point voo_impl_point_for_point = {
-  (double(*)(void *self)) voo_impl_point_get_x_for_point,
-  (double(*)(void *self)) voo_impl_point_get_y_for_point,
+  (double(*)(void *this)) voo_impl_point_get_x_for_point,
+  (double(*)(void *this)) voo_impl_point_get_y_for_point,
 };
 
 static voo_rtti voo_point_rtti = {
@@ -23,17 +23,17 @@ void voo_point_new(voo_point *point, double x, double y) {
   point->rtti = &voo_point_rtti;
 }
 
-double voo_impl_point_get_x_for_circle(voo_circle *self) {
-  return self->x;
+double voo_impl_point_get_x_for_circle(voo_circle *this) {
+  return this->x;
 }
 
-double voo_impl_point_get_y_for_circle(voo_circle *self) {
-  return self->y;
+double voo_impl_point_get_y_for_circle(voo_circle *this) {
+  return this->y;
 }
 
 static voo_vtable_for_point voo_impl_point_for_circle = {
-  (double(*)(void *self)) voo_impl_point_get_x_for_circle,
-  (double(*)(void *self)) voo_impl_point_get_y_for_circle,
+  (double(*)(void *this)) voo_impl_point_get_x_for_circle,
+  (double(*)(void *this)) voo_impl_point_get_y_for_circle,
 };
 
 static voo_rtti voo_circle_rtti = {
